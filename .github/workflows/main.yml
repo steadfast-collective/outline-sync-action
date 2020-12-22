@@ -1,4 +1,4 @@
-name: 'Compile Mermaid in Markdown'
+name: 'Render Mermaid in Markdown'
 
 on:
   push:
@@ -9,9 +9,11 @@ on:
       - "main"
 
 jobs:
-  build:
+  mermaid:
 
+    name: "Update mermaid diagram renders in Markdown"
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
     - uses: actions/checkout@v2
@@ -47,10 +49,10 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Updated diagrams" -a
+        git commit -m "Updated markdown diagrams [ci skip]" -a
 
     - name: Push changes
-      if: steps.getfile.outputs.files
+      if: steps.changes.outputs.files
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
