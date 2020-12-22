@@ -30,7 +30,7 @@ jobs:
       run: ls -la
 
     - name: compile mermaid
-      uses: ./action.yml
+      uses: ./
       with:
         files: README.md
         #files: ${{ steps.getfile.outputs.files }}
