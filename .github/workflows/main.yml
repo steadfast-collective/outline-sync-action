@@ -1,11 +1,11 @@
 name: 'Compile Mermaid in Markdown'
 
-on: push
-# TODO: only run on markdown commits after debugg
-#on:
-#  push:
-#    paths:
-#      - '**/*.md'
+on:
+  push:
+    paths:
+      - '**/*.md'
+    branches-ignore:
+      - "master"
 
 jobs:
   build:
@@ -26,14 +26,10 @@ jobs:
       run: |
         echo ${{ steps.getfile.outputs.files }}
 
-    - name: ls
-      run: ls -la
-
     - name: compile mermaid
       uses: ./
       with:
-        files: README.md
-        #files: ${{ steps.getfile.outputs.files }}
+        files: ${{ steps.getfile.outputs.files }}
 
     - name: show changes
       run: |
