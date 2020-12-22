@@ -1,9 +1,11 @@
 name: 'Compile Mermaid in Markdown'
 
-on:
-  push:
-    paths:
-      - '**/*.md'
+on: push
+# TODO: only run on markdown commits after debugging
+#on:
+#  push:
+#    paths:
+#      - '**/*.md'
 
 jobs:
   build:
