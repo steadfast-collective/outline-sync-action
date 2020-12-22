@@ -1,14 +1,13 @@
 #!/usr/local/bin/python3.8
 
+import argparse
 import base64
+from dataclasses import dataclass
+from pathlib import Path
 import re
 import sys
 import zlib
-from dataclasses import dataclass
-from pathlib import Path
-import subprocess
 
-import click
 
 # Note, this only handles the normal case of triple-` at the moment,
 # but more backticks are possible.
@@ -75,10 +74,13 @@ def process_markdown_file(markdown: str):
 
     return markdown
 
+def run():
 
-@click.command()
-@click.argument("files", nargs=-1, type=click.Path())
-def run(files):
+    # Parse program input
+    parser = argparse.ArgumentParser(description='Updated embedded mermaid diagrams in markdown.')
+    parser.add_argument('files', metavar='file', type=str, nargs='*', help='The files to render. Parse none to render all files.')
+    args = parser.parse_args()
+    files = args.files
 
     # If no files passed, run on everything
     if not files:

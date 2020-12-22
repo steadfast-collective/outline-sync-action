@@ -119,10 +119,23 @@ jobs:
 
 ```
 
+### Precommit hook
+
+In your project, install [precommit](https://pre-commit.com/), then add the following to `.pre-commit-config.yaml`:
+
+```
+repos:
+  - repo: https://github.com/cookpad/gfm-diagram
+    hooks:
+      - id: gfmd
+```
+
+When you commit a change to a diagram, an updated kroki link will be added, and the CI will not add a second commit to update the diagram.
+
 ## Roadmap
 
 - [x] Basic github action
-- [ ] Basic precommit hook
+- [x] Basic precommit hook
 - [ ] Tests
 - [ ] Option to use local mermaid cli to render and store images locally
 - [ ] Better markdown parsing

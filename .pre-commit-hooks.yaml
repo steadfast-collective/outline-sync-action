@@ -1,0 +1,10 @@
+
+- id: gfmd
+  name: gfm-diagrams
+  description: "GFM Diagrams"
+  entry: python src/markdown_process
+  language: python
+  language_version: python3
+  require_serial: true
+  types: [file]
+  files: ".*\\.md"
