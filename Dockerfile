@@ -6,9 +6,11 @@ FROM python:3.8
 WORKDIR /gfmd
 COPY . .
 
+RUN python3.8 -m pip install .
+
 # ---
 # Entry point stuff
 # ---
 ENV ENTRYPOINT_PATH /gfmd
-ENTRYPOINT ["/gfmd/src/markdown_process" ]
+ENTRYPOINT ["gfmd"]
 CMD [ "--help" ]

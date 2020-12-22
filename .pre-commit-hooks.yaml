@@ -2,7 +2,7 @@
 - id: gfmd
   name: gfm-diagrams
   description: "GFM Diagrams"
-  entry: python src/markdown_process
+  entry: gfmd
   language: python
   language_version: python3
   require_serial: true
