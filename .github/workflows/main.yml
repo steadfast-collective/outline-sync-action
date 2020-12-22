@@ -1,7 +1,7 @@
 name: 'Compile Mermaid in Markdown'
 
 on: push
-# TODO: only run on markdown commits after debugging
+# TODO: only run on markdown commits after debugg
 #on:
 #  push:
 #    paths:
@@ -32,7 +32,8 @@ jobs:
     - name: compile mermaid
       uses: ./action.yml
       with:
-        files: ${{ steps.getfile.outputs.files }}
+        files: README.md
+        #files: ${{ steps.getfile.outputs.files }}
 
     - name: show changes
       run: |
