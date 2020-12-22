@@ -70,6 +70,12 @@ on:
     branches-ignore:
       - "master"
       - "main"
+  pull_request:
+    paths:
+      - '**/*.md'
+    branches:
+      - "master"
+      - "main"
 
 jobs:
   mermaid:
