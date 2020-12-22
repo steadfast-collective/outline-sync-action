@@ -24,6 +24,9 @@ jobs:
       run: |
         echo ${{ steps.getfile.outputs.files }}
 
+    - name: ls
+      run: ls -la
+
     - name: compile mermaid
       uses: ./action.yml
       with:
