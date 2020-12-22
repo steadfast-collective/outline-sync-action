@@ -6,6 +6,7 @@ on:
       - '**/*.md'
     branches-ignore:
       - "master"
+      - "main"
 
 jobs:
   build:
@@ -23,25 +24,30 @@ jobs:
         echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -e '.*\.md$' | xargs)"
 
     - name: md files changed
+      if: ${{steps.getfile.outputs.files}} != ""
       run: |
         echo ${{ steps.getfile.outputs.files }}
 
     - name: compile mermaid
+      if: ${{steps.getfile.outputs.files}} != ""
       uses: ./
       with:
         files: ${{ steps.getfile.outputs.files }}
 
     - name: show changes
+      if: ${{steps.getfile.outputs.files}} != ""
       run: |
         git status
 
     - name: Commit files
+      if: ${{steps.getfile.outputs.files}} != ""
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Add changes" -a
+        git commit -m "Updated diagrams" -a
 
     - name: Push changes
+      if: ${{steps.getfile.outputs.files}} != ""
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
