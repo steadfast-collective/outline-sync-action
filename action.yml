@@ -1,0 +1,14 @@
+name: 'GFM Diagrams - mermaid'
+description: 'Add rendered diagrams to mmd files'
+branding:
+  icon: 'grid'
+  color: 'green'
+inputs:
+  files:
+    description: 'the path to the files to compile'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.files }}
