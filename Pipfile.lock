@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "469dd406fd0fc32778f4cd14b780ea240a3196bc9479d88a92a00c56de23f95f"
+            "sha256": "05398baec28b9f8f65d83abe9343f69097a788f786db05bcf8fc8f6a527ab39a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,18 @@
         ]
     },
     "default": {
+        "gfmdiagrams": {
+            "editable": true,
+            "path": "."
+        },
+        "marko": {
+            "hashes": [
+                "sha256:bea611bc603d516221ec86e2a249fd2bb354416db367dbd85d8bd0cfc0b93a33",
+                "sha256:e021d9c373373fb1a2e2add38019114b8d96c4f14ea0a21a07427fbd11fd3c17"
+            ],
+            "index": "pypi",
+            "version": "==0.10.0"
+        },
         "mypackagename": {
             "editable": true,
             "path": "."

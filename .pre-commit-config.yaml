@@ -4,9 +4,8 @@ repos:
       - id: gfmd
         name: gfm-diagrams
         description: "GFM Diagrams"
-        entry: python gfmd/gfmd
-        language: python
-        language_version: python3
+        entry: pipenv run python -m gfmd
+        language: system
         require_serial: true
         types: [file]
         files: ".*\\.md"

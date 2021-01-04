@@ -1,8 +1,8 @@
 
-
 ## My cool documentation example
 
 This is a demo document, which has a diagram sfd
+
 
 <!-- gfmd-start -->
 ![Mermaid diagram](https://kroki.io/mermaid/svg/eNpdz0ELgjAYBuB7v-I9lqBUVpqIEfMYdOwQHaZ86GK6mhYU_vg0l0i3fc_evexLJa-qWPBM82LCumG-QNjYNvZP0q-DKrOvIgBTSpqIC6tN9OeVsTXUYBtjHhzHkG9oC9uOwJZt4SknTeAFxG50aYG5o7GJTIE3dAag-4PLajob0TG5UlqfLyBJBZV1zGs-LBSgEm8a8h2Iskaai-L2Z5nSQsrfUx9h_91-fUiekPwALmZc9A==)
