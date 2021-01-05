@@ -74,7 +74,7 @@ The action provided by this project needs a surrounding workflow. The following 
 Add a `.github/workflows/gfm-diagram.yml` file containing:
 
 
-```
+```yaml
 name: 'Render Mermaid in Markdown'
 
 on:
