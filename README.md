@@ -148,7 +148,7 @@ jobs:
 In your project, install [precommit](https://pre-commit.com/), then add the following to `.pre-commit-config.yaml`:
 
 
-```
+```yaml
 repos:
   - repo: https://github.com/cookpad/gfm-diagram
     hooks:
@@ -157,6 +157,23 @@ repos:
 
 When you commit a change to a diagram, an updated kroki link will be added, and the CI will not add a second commit to update the diagram.
 
+Alternatively, if you're using pipenv or poetry to manage your dependencies and want to always use the same version of GFM-Diagram in your precommit hook, then you can use the locally installed version by doing something such as this in your `.pre-commit-config.yaml`:
+
+```yaml
+default_language_version:
+  python: python3.8
+repos:
+- repo: local
+  hooks:
+  - id: gfmd
+    name: gfmd
+    stages: [commit]
+    language: system
+    entry: pipenv run gfmd
+    types: [file]
+    files: "docs/.*\\.md"
+    require_serial: true
+```
 
 ## Roadmap
 
