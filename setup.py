@@ -8,6 +8,6 @@ setup(
     description="Mermaid in GitHub markdown",
     package_dir={"": "."},
     packages=["gfmd"],
-    install_requires=["marko<1.0"],
+    install_requires=["marko<1.0", "watchdog"],
     entry_points={"console_scripts": ["gfmd=gfmd:run"]},
 )

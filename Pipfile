@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 mypackagename = {editable = true, path = "."}
 marko = "*"
+watchdog = "*"
 
 [dev-packages]
 

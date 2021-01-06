@@ -1,17 +1,20 @@
 #!/usr/local/bin/python3.8
 import argparse
 from pathlib import Path
+import time
 
 import marko
 from marko.md_renderer import MarkdownRenderer
-#from marko.ast_renderer import ASTRenderer
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
 from .elements import RenderableMermaid
 
 class CustomMarkdownRenderer(MarkdownRenderer):
 
     def render_paragraph(self, element):
         """Removes double new line.
-        
+
         May not be needed if https://github.com/frostming/marko/pull/72 is accepted
         """
         children = self.render_children(element)
@@ -20,6 +23,75 @@ class CustomMarkdownRenderer(MarkdownRenderer):
         self._prefix = self._second_prefix
         return line
 
+markdown_parser = marko.Markdown(renderer=CustomMarkdownRenderer, extensions=[RenderableMermaid])
+
+def process_file(filename):
+    print(f"Processing {filename}... ", end="")
+    file = Path(filename)
+    new_file = markdown_parser.convert(file.read_text())
+
+    if new_file != file:
+        print("Updated... ", end="")
+        file.write_text(new_file)
+    else:
+        print("Skipped... ", end="")
+    print("Done.")
+
+
+class RerenderEventHandler(FileSystemEventHandler):
+    """Watchdog handler to re-render when we see a change which GFMD can process."""
+
+    def __init__(self):
+        self.debounce_interval = 1 # seconds
+        self.debounce_list = {} # path -> seen time
+
+    def debounce_allow(self, event):
+        """Return True if the event is allowed.
+
+        Because GFMD modifies files, we generate new filesystem events when re-writing the updated markdown.
+        To counter this, we have to ignore the resulting events.
+        """
+        current_time = time.monotonic()
+
+        if event.src_path in self.debounce_list:
+            if current_time < self.debounce_list[event.src_path] + self.debounce_interval:
+                return False
+
+        self.debounce_list[event.src_path] = current_time
+        return True
+
+
+    def render(self, event):
+        if event.is_directory:
+            return
+        if not event.src_path.endswith(".md"):
+            return
+        if not self.debounce_allow(event):
+            return
+        process_file(event.src_path)
+
+    def on_created(self, event):
+        self.render(event)
+
+    def on_modified(self, event):
+        self.render(event)
+
+def watch(folders):
+    event_handler = RerenderEventHandler()
+    observer = Observer()
+    for folder in folders:
+        observer.schedule(event_handler, str(folder), recursive=True)
+    observer.start()
+    print("Watching for markdown file changes")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        observer.stop()
+        observer.join()
+        print("Exiting")
 
 
 def run():
@@ -35,27 +107,34 @@ def run():
         nargs="*",
         help="The files to render. Parse none to render all files.",
     )
+    parser.add_argument(
+        "-w",
+        "--watch",
+        action='store_true',
+        help="Watch for changes and re-run on changes."
+    )
     args = parser.parse_args()
     files = args.files
 
-    # If no files passed, run on everything
-    if not files:
-        files = Path(".").rglob("*.md")
+    if args.watch:
+        # Run in watch mode.
+        if not files:
+            files = [Path(".")]
 
-    markdown_parser = marko.Markdown(renderer=CustomMarkdownRenderer, extensions=[RenderableMermaid])
+        for folder in files:
+            if not Path(folder).is_dir():
+                raise Exception("Watching requires that you specify only directories")
 
-    for file in files:
-        print(f"Processing {file}... ", end="")
-        file = Path(file)
-        new_file = markdown_parser.convert(file.read_text())
+        watch(files)
 
-        if new_file != file:
-            print("Updated... ", end="")
-            file.write_text(new_file)
-        else:
-            print("Skipped... ", end="")
+    else:
+        # One shot process
+        # If no files passed, run on everything
+        if not files:
+            files = Path(".").rglob("*.md")
 
-        print("Done.")
+        for file in files:
+            process_file(file)
 
 
 if __name__ == "__main__":
