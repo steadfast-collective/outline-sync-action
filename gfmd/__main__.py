@@ -10,20 +10,7 @@ from watchdog.events import FileSystemEventHandler
 
 from .elements import RenderableMermaid
 
-class CustomMarkdownRenderer(MarkdownRenderer):
-
-    def render_paragraph(self, element):
-        """Removes double new line.
-
-        May not be needed if https://github.com/frostming/marko/pull/72 is accepted
-        """
-        children = self.render_children(element)
-        tail = "\n"
-        line = self._prefix + children + tail
-        self._prefix = self._second_prefix
-        return line
-
-markdown_parser = marko.Markdown(renderer=CustomMarkdownRenderer, extensions=[RenderableMermaid])
+markdown_parser = marko.Markdown(renderer=MarkdownRenderer, extensions=[RenderableMermaid])
 
 def process_file(filename):
     print(f"Processing {filename}... ", end="")
