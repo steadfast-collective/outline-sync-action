@@ -7,6 +7,20 @@ from marko.md_renderer import MarkdownRenderer
 #from marko.ast_renderer import ASTRenderer
 from .elements import RenderableMermaid
 
+class CustomMarkdownRenderer(MarkdownRenderer):
+
+    def render_paragraph(self, element):
+        """Removes double new line.
+        
+        May not be needed if https://github.com/frostming/marko/pull/72 is accepted
+        """
+        children = self.render_children(element)
+        tail = "\n"
+        line = self._prefix + children + tail
+        self._prefix = self._second_prefix
+        return line
+
+
 
 def run():
 
@@ -28,7 +42,7 @@ def run():
     if not files:
         files = Path(".").rglob("*.md")
 
-    markdown_parser = marko.Markdown(renderer=MarkdownRenderer, extensions=[RenderableMermaid])
+    markdown_parser = marko.Markdown(renderer=CustomMarkdownRenderer, extensions=[RenderableMermaid])
 
     for file in files:
         print(f"Processing {file}... ", end="")
