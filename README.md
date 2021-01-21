@@ -3,17 +3,22 @@
 > From [cookpad](https://cookpad.com) search hack 2020
 
 
-**Get rendered [Mermaid](https://mermaid-js.github.io/mermaid/#/) diagrams in github markdown previews**
+
+**Get rendered [Mermaid](https://mermaid-js.github.io/mermaid/#/) or [plantuml](https://plantuml.com/) diagrams in github markdown previews**
+
 
 Unlike gitlab, github does not provide a way to embed diagram in markdown. This project aims to make it easier to communicate with diagrams, but without requiring a documentation generator.
 
+
 Possible use cases:
+
 
 - Projects which use markdown for their documentation
 - Source controlled diagrams
 - Very simple blogs
 
 Powered by the diagram rendering service provided by https://kroki.io/#how
+
 
 ## This project provides
 
@@ -23,6 +28,7 @@ Powered by the diagram rendering service provided by https://kroki.io/#how
 ## Example
 
 I want to add a diagram to a markdown file, I can add:
+
 
     <!-- gfmd-start -->
     ```mermaid
@@ -37,8 +43,9 @@ I want to add a diagram to a markdown file, I can add:
 
 Which will result in the following:
 
+
 <!-- gfmd-start -->
-![Mermaid diagram](https://kroki.io/mermaid/svg/eNpLL0osyFAIceFyjHbOKMosLslNLI5V0NW1q3FPLVHIzc9LraxRcNJwz1cozsgvKMjMS9fkcgLJKzhX-4BUpCqUZGTmZddyOYN1-eel1ii4RPskFpTkF8RCBUPK82sUXKMzAzKA5sEFM4pSgWrdotMSrdISdZMTixScE4tiAXpCLw8=)
+![mermaid diagram](https://kroki.io/mermaid/svg/eNpLL0osyFAIceFyjHbOKMosLslNLI5V0NW1q3FPLVHIzc9LraxRcNJwz1cozsgvKMjMS9fkcgLJKzhX-4BUpCqUZGTmZddyOYN1-eel1ii4RPskFpTkF8RCBUPK82sUXKMzAzKA5sEFM4pSgWrdotMSrdISdZMTixScE4tiAXpCLw8=)
 
 <details>
 <summary><sup><sub>Diagram source code</sub></sup></summary>
@@ -56,13 +63,37 @@ C -->|Three| F[fa:fa-car Car]
 
 The diagram source code remains in the markdown, and it available in a &lt;details> block in order to permit updating the diagram source in future.
 
+
+Or, for plantuml:
+
+
+<!-- gfmd-start -->
+![plantuml diagram](https://kroki.io/plantuml/svg/eNpzKC5JLCopzc3hcszJTE5V0LVTcMpPslJwLC3JSM0ryUxOLMnMz1MISi0sTS0u4QLKKegC1YAVY1FVXJCfV5zKhW5YXj5QXZFCInZDIYptdHUJqIYa7pCalwJ0MABnwEEA)
+
+<details>
+<summary><sup><sub>Diagram source code</sub></sup></summary>
+
+```plantuml
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: Another authentication Response
+@enduml
+```
+</details>
+<!-- gfmd-end -->
+
 ## Installation
 
 ### Github action
 
 The action provided by this project needs a surrounding workflow. The following example workflow shows how one would have github actions re-render and commit updated markdown for all non-main branches. The workflow will only run when markdown files have been updated and not commit if no changes are made.
 
+
 Add a `.github/workflows/gfm-diagram.yml` file containing:
+
 
 ```yaml
 name: 'Render Mermaid in Markdown'
@@ -137,6 +168,7 @@ jobs:
 
 In your project, install [precommit](https://pre-commit.com/), then add the following to `.pre-commit-config.yaml`:
 
+
 ```yaml
 repos:
   - repo: https://github.com/cookpad/gfm-diagram
@@ -146,7 +178,9 @@ repos:
 
 When you commit a change to a diagram, an updated kroki link will be added, and the CI will not add a second commit to update the diagram.
 
+
 Alternatively, if you're using pipenv or poetry to manage your dependencies and want to always use the same version of GFM-Diagram in your precommit hook, then you can use the locally installed version by doing something such as this in your `.pre-commit-config.yaml`:
+
 
 ```yaml
 default_language_version:
