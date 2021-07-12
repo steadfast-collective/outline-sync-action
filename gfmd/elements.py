@@ -14,10 +14,7 @@ class RenderableMermaidBlock(BlockElement):
     CODE_START_TOKEN = "```"
     CODE_END_TOKEN = "```"
 
-    SUPPORTED_TYPES = (
-        "mermaid",
-        "plantuml"
-    )
+    SUPPORTED_TYPES = ("mermaid", "plantuml")
 
     def __init__(self, match):
         markup_language, mermaid_src = match
@@ -54,7 +51,7 @@ class RenderableMermaidBlock(BlockElement):
                         markup_language = language
 
                 if not markup_language:
-                    continue # Skip this code block
+                    continue  # Skip this code block
 
                 # Consume the code block
                 while not source.exhausted:
@@ -76,23 +73,18 @@ class RenderableMermaidBlock(BlockElement):
 
 class RenderableMermaidBlockRendererMixin(object):
 
-    template = """<!-- gfmd-start -->
-![{language} diagram]({image_link})
+    template = """![{language} diagram]({image_link})
 
-<details>
-<summary><sup><sub>Diagram source code</sub></sup></summary>
-
-```{language}
-{input_mermaid}
-```
-</details>
-<!-- gfmd-end -->
 """
 
     def render_renderable_mermaid_block(self, element):
         """Markdown render!"""
         link = self.make_kroki_image_link(element.markup_language, element.mermaid_src)
-        return self.template.format(input_mermaid=element.mermaid_src, image_link=link, language=element.markup_language)
+        return self.template.format(
+            input_mermaid=element.mermaid_src,
+            image_link=link,
+            language=element.markup_language,
+        )
 
     def make_kroki_image_link(self, language, src):
         """See https://kroki.io/#how."""
