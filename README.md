@@ -1,36 +1,19 @@
-# GFM Diagram
+# Markdown -> [Outline](getoutline.com) sync
 
-> From [cookpad](https://cookpad.com) search hack 2020
+A github action to sync markdown files to your outline docs
 
+Features:
+- Creates/updates the markdown content of your outline docs
+- All docs have to be in the same colletion (for now)
+- Automatically parses and converts `mermaid`/`plantuml` diagrams to images (Powered by the diagram rendering service provided by https://kroki.io/#how)
 
-
-**Get rendered [Mermaid](https://mermaid-js.github.io/mermaid/#/) or [plantuml](https://plantuml.com/) diagrams in github markdown previews**
-
-
-Unlike gitlab, github does not provide a way to embed diagram in markdown. This project aims to make it easier to communicate with diagrams, but without requiring a documentation generator.
-
-
-Possible use cases:
+## Features
 
 
-- Projects which use markdown for their documentation
-- Source controlled diagrams
-- Very simple blogs
-
-Powered by the diagram rendering service provided by https://kroki.io/#how
-
-
-## This project provides
-
-1. A github action to add rendered diagrams to markdown
-1. **comming soon** A git precommit hook to reduce the need for additional commits from the github action
-
-## Example
+### Diagram conversion
 
 I want to add a diagram to a markdown file, I can add:
 
-
-    <!-- gfmd-start -->
     ```mermaid
     graph TD
     A[Christmas] -->|Get money| B(Go shopping)
@@ -39,174 +22,92 @@ I want to add a diagram to a markdown file, I can add:
     C -->|Two| E[iPhone]
     C -->|Three| F[fa:fa-car Car]
     ```
-    <!-- gfmd-end -->
 
-Which will result in the following:
+Which will result in the following being rendered in the outline page:
 
-
-<!-- gfmd-start -->
 ![mermaid diagram](https://kroki.io/mermaid/svg/eNpLL0osyFAIceFyjHbOKMosLslNLI5V0NW1q3FPLVHIzc9LraxRcNJwz1cozsgvKMjMS9fkcgLJKzhX-4BUpCqUZGTmZddyOYN1-eel1ii4RPskFpTkF8RCBUPK82sUXKMzAzKA5sEFM4pSgWrdotMSrdISdZMTixScE4tiAXpCLw8=)
 
-<details>
-<summary><sup><sub>Diagram source code</sub></sup></summary>
 
-```mermaid
-graph TD
-A[Christmas] -->|Get money| B(Go shopping)
-B --> C{Let me think}
-C -->|One| D[Laptop]
-C -->|Two| E[iPhone]
-C -->|Three| F[fa:fa-car Car]
-```
-</details>
-<!-- gfmd-end -->
+## Installation (Github action)
 
-The diagram source code remains in the markdown, and it available in a &lt;details> block in order to permit updating the diagram source in future.
+The action provided by this project needs a surrounding workflow. The following example workflow shows how one would have github actions render, sync and commit updated markdown frontmatter for the `main` branch. The workflow will only run when markdown files have been updated and not commit if no changes are made.
 
 
-Or, for plantuml:
+1. Add a `.github/workflows/outline_sync.yml` file containing:
+
+  ```yaml
+  name: 'Sync docs to outline'
+
+  on:
+    push:
+      paths:
+        - '**/*.md'
+      branches:
+        - "main"
+
+  jobs:
+    mermaid:
+
+      name: "Sync markdown to outline"
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: get changed files
+        id: getfile
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -e '.*\.md$' | xargs)"
+
+      - name: md files changed
+        run: |
+          echo ${{ steps.getfile.outputs.files }}
+
+      - name: Update mermaid diagram images
+        if: steps.getfile.outputs.files
+        uses: benhowes/gfm-diagram@feat/outline
+        with:
+          files: ${{ steps.getfile.outputs.files }}
+        env:
+          OUTLINE_API_KEY: ${{secrets.OUTLINE_API_KEY}}
+          OUTLINE_COLLECTION_ID: ${{secrets.OUTLINE_COLLECTION_ID}}
+
+      - name: show changes
+        id: changes
+        run: |
+          echo "::set-output name=files::$(git status --porcelain | sed -e 's!.*/!!' | xargs)"
+
+      - name: md files tocommit
+        run: |
+          echo ${{ steps.changes.outputs.files }}
+
+      - name: Commit files
+        if: steps.changes.outputs.files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Updated markdown [ci skip]" -a
+
+      - name: Push changes
+        if: steps.changes.outputs.files
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
 
 
-<!-- gfmd-start -->
-![plantuml diagram](https://kroki.io/plantuml/svg/eNpzKC5JLCopzc3hcszJTE5V0LVTcMpPslJwLC3JSM0ryUxOLMnMz1MISi0sTS0u4QLKKegC1YAVY1FVXJCfV5zKhW5YXj5QXZFCInZDIYptdHUJqIYa7pCalwJ0MABnwEEA)
+  ```
 
-<details>
-<summary><sup><sub>Diagram source code</sub></sup></summary>
+1. Create secrets:
+  - `OUTLINE_API_KEY`: Create in your outline account settings (Settings -> API Tokens)
+  - `OUTLINE_COLLECTION_ID`: I had to use my web browsers dev tools to find the UUID of the collection I wanted to use.
 
-```plantuml
-@startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
-@enduml
-```
-</details>
-<!-- gfmd-end -->
-
-## Installation
-
-### Github action
-
-The action provided by this project needs a surrounding workflow. The following example workflow shows how one would have github actions re-render and commit updated markdown for all non-main branches. The workflow will only run when markdown files have been updated and not commit if no changes are made.
-
-
-Add a `.github/workflows/gfm-diagram.yml` file containing:
-
-
-```yaml
-name: 'Render Mermaid in Markdown'
-
-on:
-  push:
-    paths:
-      - '**/*.md'
-    branches-ignore:
-      - "master"
-      - "main"
-  pull_request:
-    paths:
-      - '**/*.md'
-    branches:
-      - "master"
-      - "main"
-
-jobs:
-  mermaid:
-
-    name: "Update mermaid diagram renders in Markdown"
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 2
-
-    - name: get changed files
-      id: getfile
-      run: |
-        echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -e '.*\.md$' | xargs)"
-
-    - name: md files changed
-      run: |
-        echo ${{ steps.getfile.outputs.files }}
-
-    - name: Update mermaid diagram images
-      if: steps.getfile.outputs.files
-      uses: ./
-      with:
-        files: ${{ steps.getfile.outputs.files }}
-
-    - name: show changes
-      id: changes
-      run: |
-        echo "::set-output name=files::$(git status --porcelain | sed -e 's!.*/!!' | xargs)"
-
-    - name: md files tocommit
-      run: |
-        echo ${{ steps.changes.outputs.files }}
-
-    - name: Commit files
-      if: steps.changes.outputs.files
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Updated markdown diagrams [ci skip]" -a
-
-    - name: Push changes
-      if: steps.changes.outputs.files
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-
-```
-
-### Precommit hook
-
-In your project, install [precommit](https://pre-commit.com/), then add the following to `.pre-commit-config.yaml`:
-
-
-```yaml
-repos:
-  - repo: https://github.com/cookpad/gfm-diagram
-    hooks:
-      - id: gfmd
-```
-
-When you commit a change to a diagram, an updated kroki link will be added, and the CI will not add a second commit to update the diagram.
-
-
-Alternatively, if you're using pipenv or poetry to manage your dependencies and want to always use the same version of GFM-Diagram in your precommit hook, then you can use the locally installed version by doing something such as this in your `.pre-commit-config.yaml`:
-
-
-```yaml
-default_language_version:
-  python: python3.8
-repos:
-- repo: local
-  hooks:
-  - id: gfmd
-    name: gfmd
-    stages: [commit]
-    language: system
-    entry: pipenv run gfmd
-    types: [file]
-    files: "docs/.*\\.md"
-    require_serial: true
-```
+1. Push to `main`
 
 ## Roadmap
 
 - [x] Basic github action
-- [x] Basic precommit hook
-- [x] Better markdown parsing
+- [ ] Allow updating published status
 - [ ] Tests
-- [ ] Option to use local mermaid cli to render and store images locally
-
-## With thanks to
-
-1. [Mermaid](https://mermaid-js.github.io/mermaid/#/)
-1. [compile-mermaid-markdown-action](https://github.com/neenjaw/compile-mermaid-markdown-action) which was used as inspiration

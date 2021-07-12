@@ -7,28 +7,24 @@ from marko.block import BlockElement
 
 class RenderableMermaidBlock(BlockElement):
 
-    priority = 6  # Try before the html block parser
+    priority = 10  # Try before the html block parser
 
-    START_TOKEN = re.compile(r"<!-- gfmd-start -->")
-    END_TOKEN = "<!-- gfmd-end -->"
-    CODE_START_TOKEN = "```"
-    CODE_END_TOKEN = "```"
-
-    SUPPORTED_TYPES = (
-        "mermaid",
-        "plantuml"
-    )
+    SUPPORTED_TYPES = ("mermaid", "plantuml")
+    START_TOKEN = re.compile(rf"```({'|'.join(SUPPORTED_TYPES)})")
+    END_TOKEN = "```"
+    _parse_info = ("", "")
 
     def __init__(self, match):
-        markup_language, mermaid_src = match
+        markup_language, diagram_src = match
         self.markup_language = markup_language
-        self.mermaid_src = mermaid_src
+        self.diagram_src = diagram_src
 
     @classmethod
     def match(cls, source):
         m = source.expect_re(cls.START_TOKEN)
         if not m:
             return None
+        cls._parse_info = m.groups()
         return m
 
     @classmethod
@@ -36,7 +32,7 @@ class RenderableMermaidBlock(BlockElement):
         source.next_line()
         source.consume()
 
-        mermaid_lines = []
+        diagram_lines = []
 
         while not source.exhausted:
             line = source.next_line()
@@ -44,55 +40,29 @@ class RenderableMermaidBlock(BlockElement):
                 break
             source.consume()
 
-            # Parse the inner mermaid fenced block
-            if cls.CODE_START_TOKEN in line:
-
-                # Check if this is a supported language
-                markup_language = None
-                for language in cls.SUPPORTED_TYPES:
-                    if language in line:
-                        markup_language = language
-
-                if not markup_language:
-                    continue # Skip this code block
-
-                # Consume the code block
-                while not source.exhausted:
-                    line = source.next_line()
-                    if line is None:
-                        break
-                    source.consume()
-                    if cls.CODE_END_TOKEN in line:
-                        break
-                    else:
-                        mermaid_lines.append(line)
-
             if cls.END_TOKEN in line:
                 break
 
+            diagram_lines.append(line.lstrip())
+
         # Return just the mermaid diagram source
-        return markup_language, "".join(mermaid_lines).strip()
+        return cls._parse_info[0], "".join(diagram_lines).strip()
 
 
 class RenderableMermaidBlockRendererMixin(object):
 
-    template = """<!-- gfmd-start -->
-![{language} diagram]({image_link})
+    template = """![{language} diagram]({image_link})
 
-<details>
-<summary><sup><sub>Diagram source code</sub></sup></summary>
-
-```{language}
-{input_mermaid}
-```
-</details>
-<!-- gfmd-end -->
 """
 
     def render_renderable_mermaid_block(self, element):
         """Markdown render!"""
-        link = self.make_kroki_image_link(element.markup_language, element.mermaid_src)
-        return self.template.format(input_mermaid=element.mermaid_src, image_link=link, language=element.markup_language)
+        link = self.make_kroki_image_link(element.markup_language, element.diagram_src)
+        return self.template.format(
+            input_mermaid=element.diagram_src,
+            image_link=link,
+            language=element.markup_language,
+        )
 
     def make_kroki_image_link(self, language, src):
         """See https://kroki.io/#how."""

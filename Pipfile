@@ -7,6 +7,9 @@ name = "pypi"
 mypackagename = {editable = true, path = "."}
 marko = "*"
 watchdog = "*"
+python-frontmatter = "*"
+requests = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
