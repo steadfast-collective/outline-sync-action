@@ -11,10 +11,17 @@ class RenderableMermaidBlock(BlockElement):
 
     START_TOKEN = re.compile(r"<!-- gfmd-start -->")
     END_TOKEN = "<!-- gfmd-end -->"
-    CODE_START_TOKEN = "```mermaid"
+    CODE_START_TOKEN = "```"
     CODE_END_TOKEN = "```"
 
-    def __init__(self, mermaid_src):
+    SUPPORTED_TYPES = (
+        "mermaid",
+        "plantuml"
+    )
+
+    def __init__(self, match):
+        markup_language, mermaid_src = match
+        self.markup_language = markup_language
         self.mermaid_src = mermaid_src
 
     @classmethod
@@ -39,6 +46,17 @@ class RenderableMermaidBlock(BlockElement):
 
             # Parse the inner mermaid fenced block
             if cls.CODE_START_TOKEN in line:
+
+                # Check if this is a supported language
+                markup_language = None
+                for language in cls.SUPPORTED_TYPES:
+                    if language in line:
+                        markup_language = language
+
+                if not markup_language:
+                    continue # Skip this code block
+
+                # Consume the code block
                 while not source.exhausted:
                     line = source.next_line()
                     if line is None:
@@ -53,18 +71,18 @@ class RenderableMermaidBlock(BlockElement):
                 break
 
         # Return just the mermaid diagram source
-        return "".join(mermaid_lines).strip()
+        return markup_language, "".join(mermaid_lines).strip()
 
 
 class RenderableMermaidBlockRendererMixin(object):
 
     template = """<!-- gfmd-start -->
-![Mermaid diagram]({image_link})
+![{language} diagram]({image_link})
 
 <details>
 <summary><sup><sub>Diagram source code</sub></sup></summary>
 
-```mermaid
+```{language}
 {input_mermaid}
 ```
 </details>
@@ -73,15 +91,15 @@ class RenderableMermaidBlockRendererMixin(object):
 
     def render_renderable_mermaid_block(self, element):
         """Markdown render!"""
-        link = self.make_kroki_image_link(element.mermaid_src)
-        return self.template.format(input_mermaid=element.mermaid_src, image_link=link)
+        link = self.make_kroki_image_link(element.markup_language, element.mermaid_src)
+        return self.template.format(input_mermaid=element.mermaid_src, image_link=link, language=element.markup_language)
 
-    def make_kroki_image_link(self, src):
+    def make_kroki_image_link(self, language, src):
         """See https://kroki.io/#how."""
         diagram = base64.urlsafe_b64encode(
             zlib.compress(src.encode("utf-8"), 9)
         ).decode("utf-8")
-        return f"https://kroki.io/mermaid/svg/{diagram}"
+        return f"https://kroki.io/{language}/svg/{diagram}"
 
 
 class RenderableMermaid:
