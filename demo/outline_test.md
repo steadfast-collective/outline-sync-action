@@ -1,5 +1,4 @@
 ---
-doc_id: e2831941-4e1b-416b-9a33-8cefcc7722ed
 title: "\U0001F39F Outline api test"
 ---
 

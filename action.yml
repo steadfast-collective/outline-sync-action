@@ -1,11 +1,11 @@
-name: 'GFM Diagrams - mermaid'
-description: 'Add rendered diagrams to mmd files'
+name: 'Markdown -> Outline sync'
+description: 'Sync markdown to getoutline.com pages'
 branding:
   icon: 'grid'
   color: 'green'
 inputs:
   files:
-    description: 'the path to the files to compile'
+    description: 'the path to the files to sync'
     required: true
 runs:
   using: 'docker'
