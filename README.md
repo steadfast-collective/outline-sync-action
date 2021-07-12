@@ -67,7 +67,7 @@ The action provided by this project needs a surrounding workflow. The following 
 
       - name: Update mermaid diagram images
         if: steps.getfile.outputs.files
-        uses: benhowes/gfm-diagram@v1.0.0
+        uses: benhowes/outline-sync-action@v1.0.0
         with:
           files: ${{ steps.getfile.outputs.files }}
         env:
