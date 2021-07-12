@@ -1,4 +1,4 @@
-# Markdown -> [Outline](getoutline.com) sync
+# Markdown -> [Outline](https://getoutline.com) sync
 
 A github action to sync markdown files to your outline docs
 
