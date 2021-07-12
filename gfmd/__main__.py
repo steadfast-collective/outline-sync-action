@@ -20,11 +20,17 @@ markdown_parser = marko.Markdown(
     renderer=MarkdownRenderer, extensions=[RenderableMermaid]
 )
 
+
 OUTLINE_REQUIRED_METADATA_KEYS = ("title",)
 outline_client = OutlineApi(
     os.environ["OUTLINE_API_KEY"], base_url=os.getenv("OUTLINE_BASE_URL")
 )
 collection_id = os.environ["OUTLINE_COLLECTION_ID"]
+
+WARNING_HEADER = f""":::info
+This page is automatically synced from [github](https://github.com/{os.getenv('GITHUB_REPOSITORY')})
+:::
+"""
 
 
 def process_file(filename):
@@ -32,16 +38,13 @@ def process_file(filename):
     file_path = Path(filename)
 
     document = frontmatter.loads(file_path.read_text())
-    new_file = markdown_parser.convert(document.content)
+    new_file = markdown_parser.convert(WARNING_HEADER + document.content)
 
     print(f"Syncing... ", end="")
 
     if not all(key in document for key in OUTLINE_REQUIRED_METADATA_KEYS):
         print()
         print(f"Unable to sync {filename} due to missing required metadata.")
-
-    print(new_file)
-    return
 
     if "doc_id" in document:
         # Update a doc
