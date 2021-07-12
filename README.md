@@ -1,21 +1,13 @@
-# GFM Diagram
-
-> From [cookpad](https://cookpad.com) search hack 2020
+# Markdown -> [Outline](getoutline.com) sync
 
 
+Sync GFM Markdown to your outline docs
 
-**Get rendered [Mermaid](https://mermaid-js.github.io/mermaid/#/) or [plantuml](https://plantuml.com/) diagrams in github markdown previews**
+Features:
+- Creates/updates the markdown content of your outline docs
+- All docs have to be in the same colletion (for now)
+- Automatically parses and converts `mermaid`/`plantuml` diagrams to images
 
-
-Unlike gitlab, github does not provide a way to embed diagram in markdown. This project aims to make it easier to communicate with diagrams, but without requiring a documentation generator.
-
-
-Possible use cases:
-
-
-- Projects which use markdown for their documentation
-- Source controlled diagrams
-- Very simple blogs
 
 Powered by the diagram rendering service provided by https://kroki.io/#how
 

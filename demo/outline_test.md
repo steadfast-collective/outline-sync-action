@@ -5,7 +5,7 @@ title: "\U0001F39F Outline api test"
 
 # This is a title
 
-<!-- gfmd-start -->
+
 ```mermaid
 classDiagram
 Class01 <|-- AveryLongClass : Cool
@@ -22,4 +22,7 @@ Class01 : int chimp
 Class01 : int gorilla
 Class08 <--> C2: Cool label
 ```
-<!--- gfmd-end -->
+```plantuml
+test -> test
+
+```

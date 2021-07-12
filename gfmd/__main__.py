@@ -40,6 +40,9 @@ def process_file(filename):
         print()
         print(f"Unable to sync {filename} due to missing required metadata.")
 
+    print(new_file)
+    return
+
     if "doc_id" in document:
         # Update a doc
         response = outline_client.document_update(
