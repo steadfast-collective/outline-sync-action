@@ -110,4 +110,6 @@ The action provided by this project needs a surrounding workflow. The following 
 
 - [x] Basic github action
 - [ ] Allow updating published status
+- [ ] Support for sub pages (complex, needs some dependency resolution)
+- [ ] Support for attachments
 - [ ] Tests
