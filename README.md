@@ -46,7 +46,7 @@ The action provided by this project needs a surrounding workflow. The following 
         - "main"
 
   jobs:
-    mermaid:
+    outline:
 
       name: "Sync markdown to outline"
       runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ The action provided by this project needs a surrounding workflow. The following 
         run: |
           echo ${{ steps.getfile.outputs.files }}
 
-      - name: Update mermaid diagram images
+      - name: Sync to outline
         if: steps.getfile.outputs.files
         uses: benhowes/outline-sync-action@v1.0.0
         with:
