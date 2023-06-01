@@ -28,7 +28,7 @@ outline_client = OutlineApi(
 collection_id = os.environ["OUTLINE_COLLECTION_ID"]
 
 WARNING_HEADER = f""":::info
-This page is automatically synced from [github](https://github.com/{os.getenv('GITHUB_REPOSITORY')})
+This document is automatically synced from GitHub. Please make any updates to this document in [GitHub](https://github.com/{os.getenv('GITHUB_REPOSITORY')}).
 :::
 """
 
